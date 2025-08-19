@@ -1,7 +1,7 @@
 
 resource "aws_key_pair" "deployer" {
   key_name   = "deployer-key"
-  public_key = file(pathexpand("~/.ssh/id_rsa.pub"))
+  public_key = var.public_key
 }
 
 # Data pro servery (může být i ve variables.tf)

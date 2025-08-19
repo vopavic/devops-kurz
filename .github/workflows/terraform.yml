@@ -5,6 +5,7 @@ on:
 
 env:
   TF_WORKING_DIR: lesson4
+  TF_VAR_public_key: ${{ secrets.SSH_PUBLIC_KEY }}   # <<< přidat toto
 
 jobs:
   apply:
