@@ -13,3 +13,9 @@ variable "servers" {
     server3 = "Čau z třetího serveru"
   }
 }
+
+variable "public_key" {
+  type        = string
+  description = "OpenSSH public key"
+  sensitive   = true
+}
