@@ -41,7 +41,7 @@ DynamoDB tabulka: terraform-locks
 **Použití**
 
 terraform init               # při prvním spuštění / po změně backendu
-# nebo: terraform init -migrate-state  (při přesunu lokálního state do S3)
+nebo: terraform init -migrate-state  (při přesunu lokálního state do S3)
 terraform fmt
 terraform validate
 terraform plan
