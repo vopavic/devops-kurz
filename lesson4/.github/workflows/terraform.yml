@@ -1,0 +1,35 @@
+name: Terraform Apply (manual)
+
+on:
+  workflow_dispatch:
+
+env:
+  TF_WORKING_DIR: lesson4
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    environment: dev   # tím získá přístup k ENV secrets a (případně) čeká na schválení
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.1.0
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1   # musí sedět s tvým S3 backendem
+
+      - run: terraform init -input=false
+      - run: terraform apply -auto-approve -input=false
+
+      - name: Outputs
+        run: terraform output | tee -a $GITHUB_STEP_SUMMARY
