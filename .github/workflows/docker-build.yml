@@ -1,0 +1,46 @@
+name: Docker Build and Test
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  IMAGE_NAME: python-calculator
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Run unit tests
+        run: |
+          echo "🧪 Spouštění unit testů..."
+          python -m unittest test_calculator.py -v
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          echo "🔨 Buildování Docker image..."
+          docker build -t ${{ env.IMAGE_NAME }}:latest .
+          docker tag ${{ env.IMAGE_NAME }}:latest ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Test Docker container
+        run: |
+          echo "✅ Smoke test kontejneru..."
+          docker run --rm ${{ env.IMAGE_NAME }}:latest
+
+      - name: List Docker images
+        run: |
+          echo "📦 Images v tomto runneru:"
+          docker images | grep ${{ env.IMAGE_NAME }}
