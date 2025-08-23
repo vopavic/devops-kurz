@@ -1,0 +1,43 @@
+# -----------------------------------------
+# Terraform
+# -----------------------------------------
+
+# Cache adresář s providery a pluginy
+.terraform/
+
+# Terraform state files (obsahují citlivá data)
+terraform.tfstate
+terraform.tfstate.*
+
+# Crash logy
+crash.log
+crash.*.log
+
+# Lokální override konfigurace (nemají být verzovány)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Soukromé proměnné - necommituješ skutečné credentials
+*.tfvars
+*.tfvars.json
+
+# -----------------------------------------
+# Obecné Python (pokud používáš testy/skripty)
+# -----------------------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pytest_cache/
+
+# Virtuální prostředí
+.venv/
+venv/
+
+# -----------------------------------------
+# OS/Editor files
+# -----------------------------------------
+.DS_Store
+Thumbs.db
