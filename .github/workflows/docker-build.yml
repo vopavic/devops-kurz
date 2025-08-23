@@ -96,7 +96,7 @@ jobs:
     - name: Build and push Docker image to ECR
       run: |
         ECR_URL=${{ steps.ecr-url.outputs.ecr_url }}
-        docker build -t $ECR_URL:latest .
+        docker build -t $ECR_URL:latest -f lesson5/Dockerfile lesson5
         docker build -t $ECR_URL:${{ github.sha }} .
 
         echo "🚀 Pushing images to ECR..."
