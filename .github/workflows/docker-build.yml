@@ -8,6 +8,7 @@ on:
 
 env:
   IMAGE_NAME: python-calculator
+  TF_VAR_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
 
 jobs:
   build-and-test:
@@ -50,6 +51,7 @@ jobs:
   deploy-to-ecr:
     needs: build-and-test
     runs-on: ubuntu-latest
+    environment: dev
     if: github.ref == 'refs/heads/main'
 
     steps:
