@@ -9,6 +9,7 @@ on:
 env:
   IMAGE_NAME: python-calculator
   TF_VAR_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+  Environment: dev
 
 jobs:
   build-and-test:
