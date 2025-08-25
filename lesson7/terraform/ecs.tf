@@ -44,17 +44,17 @@ resource "aws_ecs_task_definition" "nginx" {
 
 # ECS Service (1 task), Fargate, za ALB
 resource "aws_ecs_service" "nginx" {
-  name            = "${var.project_name}-service"
-  cluster         = aws_ecs_cluster.main.id
-  task_definition = aws_ecs_task_definition.nginx.arn
-  desired_count   = 1
-  launch_type     = "FARGATE"
+  name             = "${var.project_name}-service"
+  cluster          = aws_ecs_cluster.main.id
+  task_definition  = aws_ecs_task_definition.nginx.arn
+  desired_count    = 1
+  launch_type      = "FARGATE"
   platform_version = "LATEST"
 
   network_configuration {
-    subnets         = data.aws_subnets.vpc.ids
-    security_groups = [aws_security_group.ecs_tasks.id]
-    assign_public_ip = true  # protože default VPC subnets jsou public
+    subnets          = data.aws_subnets.vpc.ids
+    security_groups  = [aws_security_group.ecs_tasks.id]
+    assign_public_ip = true # protože default VPC subnets jsou public
   }
 
   load_balancer {
