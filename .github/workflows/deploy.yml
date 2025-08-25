@@ -1,0 +1,78 @@
+name: Deploy ECS Infrastructure
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  AWS_REGION: us-east-1
+  TF_VERSION: 1.5.0
+
+jobs:
+  terraform:
+    name: Terraform
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write  # ponecháno pro případný přechod na OIDC
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (static keys)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Format Check
+        run: terraform -chdir=terraform fmt -check
+
+      - name: Terraform Init
+        run: terraform -chdir=terraform init
+
+      - name: Terraform Validate
+        run: terraform -chdir=terraform validate -no-color
+
+      - name: Terraform Plan (PR only)
+        if: github.event_name == 'pull_request'
+        run: terraform -chdir=terraform plan -no-color -input=false
+
+      - name: Terraform Apply (push to main)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform -chdir=terraform apply -auto-approve -input=false
+
+      - name: Get Load Balancer URL
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        id: lb_url
+        run: |
+          url=$(terraform -chdir=terraform output -raw load_balancer_url)
+          echo "url=$url" >> $GITHUB_OUTPUT
+          echo "Load Balancer URL: $url"
+
+      - name: Smoke test (retry)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          echo "Waiting 60s for ECS service stabilization..."
+          sleep 60
+          for i in {1..10}; do
+            if curl -fsS "${{ steps.lb_url.outputs.url }}" >/dev/null; then
+              echo "✅ Application is responding"
+              exit 0
+            else
+              echo "Attempt $i failed, retry in 20s..."
+              sleep 20
+            fi
+          done
+          echo "❌ Application not responding"
+          exit 1
